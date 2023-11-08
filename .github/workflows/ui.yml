@@ -63,6 +63,7 @@ jobs:
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main'
       run: terraform apply -var-file="proto.tfvars" -auto-approve
+      
         
   deploy:
     needs: [ buils-app, terraform ]
