@@ -41,7 +41,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: dist
-          path: dist/
+          path: sample_react_app/dist/
 
   terraform:
     runs-on: ubuntu-latest
@@ -79,7 +79,13 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: dist
-          path: dist
+          path: sample_react_app/dist
+          
+      - name: List contents of the dist directory after download
+        run: ls -al dist/
+
+      - name: List contents of the sample_react_app/dist directory after download
+        run: ls -al sample_react_app/dist/
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -90,4 +96,4 @@ jobs:
 
       - name: Copy files to S3
         run: |
-            aws s3 sync dist/ s3://tf-spa-host-bucket/ 
+            aws s3 sync sample_react_app/dist/ s3://tf-spa-host-bucket/ 
