@@ -1,0 +1,77 @@
+name: Reactapp deployement
+on:
+    push:
+        branches:
+        - main
+    pull_request:
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: us-east-1
+  APP_ENVIRONMENT: development
+
+
+jobs:
+  buils-app:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [16]
+    defaults:
+      run:
+        working-directory: sample_react_app
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install serverless
+        run: npm install -g serverless
+      - name: Install NPM dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+        run:
+          working-directory: terraform
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: '1.0.0'
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Plan
+      run: terraform plan -var-file="proto.tfvars"
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main'
+      run: terraform apply -var-file="proto.tfvars" -auto-approve
+        
+  deploy:
+    needs: [ buils-app, terraform ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: "us-east-1"
+
+      - name: Copy files to S3
+        run: |
+            aws s3 sync dist/ s3://tf-spa-host-bucket/ 
