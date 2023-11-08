@@ -6,7 +6,15 @@ terraform {
     }
   }
   required_version = ">= 1.5.0"
+
+  backend "s3" {
+    bucket         	   = "tehilah-tfstate"
+    key              	   = "state/tf_spa_host_bucket_terraform_1.tfstate"
+    region         	   = "us-east-1"
+    encrypt        	   = true
+  }
 }
+
 
 provider "aws" {
   region = "us-east-1"
