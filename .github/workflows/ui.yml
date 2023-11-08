@@ -33,6 +33,9 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build
+
+      - name: List contents of the dist directory
+        run: ls -al dist/
       
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
@@ -63,7 +66,7 @@ jobs:
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main'
       run: terraform apply -var-file="proto.tfvars" -auto-approve
-      
+
         
   deploy:
     needs: [ buils-app, terraform ]
