@@ -35,7 +35,7 @@ jobs:
         run: npm run build
 
       - name: List contents of the dist directory
-        run: ls -al dist/assets/
+        run: ls -al dist/
       
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
@@ -85,7 +85,7 @@ jobs:
 
       - name: List contents of the sample_react_app/dist directory after download
         # run: ls -al /home/runner/work/single-page-app-s3/single-page-app-s3/sample_react_app/dist/
-        run: ls -al ./dist/assets
+        run: ls -al ./dist
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -96,4 +96,4 @@ jobs:
 
       - name: Copy files to S3
         run: |
-            aws s3 sync ./dist s3://tf-spa-host-bucket/ 
+            aws s3 sync ./dist s3://tf-spa-host-bucket/ --delete
